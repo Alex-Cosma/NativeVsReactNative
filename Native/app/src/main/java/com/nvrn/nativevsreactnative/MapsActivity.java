@@ -2,12 +2,15 @@ package com.nvrn.nativevsreactnative;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -37,10 +40,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        Log.d("map ready", "THE MAP IS READY");
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+                double l1 = bounds.southwest.latitude;
+                double L1 = bounds.southwest.longitude;
+
+                double l2 = bounds.northeast.latitude;
+                double L2 = bounds.northeast.longitude;
+
+                for (int i = 0; i < 20; i++) {
+                    double l = Math.random() * (Math.max(l1, l2) - Math.min(l1, l2)) + Math.min(l1, l2);
+                    double L = Math.random() * (Math.max(L1, L2) - Math.min(L1, L2)) + Math.min(L1, L2);
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(-l, L)).title(String.format("(%f, %f) - (%f, %f)", l1, L1, l2, L2)));
+                }
+            }
+        });
     }
 }
