@@ -13,50 +13,52 @@ import {
     View
 } from 'react-native';
 
-const markers = [...new Array(10).keys()].map(m => ({
-    coordinate: {
-        latitude: getRandomArbitrary(0, 90),
-        longitude: getRandomArbitrary(-100, 100),
-    },
-    title: 'testt',
-    description: 'test',
-}));
-
-function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
 class ReactNative extends Component {
     constructor() {
         super();
         this.onRegionChange = this.onRegionChange.bind(this);
         this.state = {
-            markers: []
+            markers: [
+                {
+                    coordinate: {
+                        latitude: -34,
+                        longitude: 151,
+                    },
+                    title: 'Sydney',
+                    description: 'Marker in Sydney',
+                }
+            ]
         };
     }
 
+    static randomBetween(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
     onRegionChange({latitude, longitude, latitudeDelta, longitudeDelta}) {
-        console.log(latitude, longitude, this.state);
-        this.setState({
-            markers: [...new Array(10).keys()].map(() => ({
+        let markers = this.state.markers;
+
+        for (let i = 0; i < 20; ++i) {
+            markers.push({
                 coordinate: {
-                    latitude: getRandomArbitrary(latitude - latitudeDelta/2, latitude + latitudeDelta/2),
-                    longitude: getRandomArbitrary(longitude - longitudeDelta/2, longitude + longitudeDelta/2),
+                    latitude: ReactNative.randomBetween(latitude - latitudeDelta / 2, latitude + latitudeDelta / 2),
+                    longitude: ReactNative.randomBetween(longitude - longitudeDelta / 2, longitude + longitudeDelta / 2),
                 },
                 title: 'testt',
                 description: 'test',
-            }))
-        })
+            })
+        }
+        this.setState({markers})
     }
 
     render() {
         return (
-            <View style={styles.container}>
+            <View style={styles.container} renderToHardwareTextureAndroid={true}>
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        latitude: 37.78825,
-                        longitude: -122.4324,
+                        latitude: -34,
+                        longitude: 151,
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     }}
@@ -65,7 +67,7 @@ class ReactNative extends Component {
                     {this.state.markers.map((marker, i) => (
                         <MapView.Marker
                             key={i}
-                            coordinate={marker.coordinate}
+                            {...marker}
                         />
                     ))}
                 </MapView>
@@ -87,17 +89,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-    },
-    welcome: {
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
-    },
-    instructions: {
-        textAlign: 'center',
-        color: '#333333',
-        marginBottom: 5,
-    },
+    }
 });
 
 AppRegistry.registerComponent('ReactNative', () => ReactNative);
